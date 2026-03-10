@@ -30,10 +30,7 @@
         "@id": "https://amcunning.github.io/#author",
         "name": "A.M. Cunning",
         "url": "https://amcunning.github.io/",
-        "sameAs": [
-          "https://x.com/amc2828",
-          "https://www.amazon.com/stores/A.M.-Cunning/author/B074SCRL9H"
-        ],
+        "sameAs": ["https://x.com/amc2828","https://www.amazon.com/stores/A.M.-Cunning/author/B074SCRL9H"],
         "jobTitle": "Author",
         "genre": ["Science Fiction", "Children's Literature"]
       },
@@ -127,10 +124,6 @@
     .video-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:2rem; margin-top:2rem; }
     .video-card { border:1px solid var(--border); background:var(--soft); border-radius:3px; overflow:hidden; transition:border-color 0.3s,transform 0.3s; }
     .video-card:hover { border-color:var(--glow); transform:translateY(-4px); }
-    .video-placeholder { width:100%; aspect-ratio:16/9; background:var(--mid); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; position:relative; overflow:hidden; }
-    .play-btn { width:54px; height:54px; border-radius:50%; border:2px solid var(--glow); display:flex; align-items:center; justify-content:center; color:var(--glow); font-size:1.3rem; position:relative; z-index:1; transition:background 0.3s; cursor:pointer; }
-    .play-btn:hover { background:rgba(79,156,249,0.15); }
-    .video-placeholder p { font-family:'Orbitron',monospace; font-size:0.65rem; letter-spacing:0.15em; color:var(--glow); text-transform:uppercase; position:relative; z-index:1; }
     .video-info { padding:1.2rem; }
     .video-info h3 { font-family:'Lora',serif; font-size:1rem; color:var(--white); margin-bottom:0.35rem; }
     .video-info p { font-size:0.82rem; color:var(--silver); }
@@ -168,6 +161,7 @@
   </ul>
 </nav>
 
+<!-- HERO — clean, no video player here -->
 <section id="hero">
   <div class="nebula nebula-1"></div>
   <div class="nebula nebula-2"></div>
@@ -177,16 +171,6 @@
   <div class="hero-cta">
     <a href="#books" class="btn btn-primary">Explore Books</a>
     <a href="#about" class="btn btn-secondary">Meet the Author</a>
-  </div>
-
-  <!-- VIDEO PLAYER -->
-  <div style="margin-top:2.5rem;animation:fadeUp 0.8s ease 1s both;display:flex;flex-direction:column;align-items:center;gap:0.6rem;">
-    <span style="font-family:'Orbitron',monospace;font-size:0.62rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--glow);">✦ &nbsp; Official Trailer &nbsp; ✦</span>
-    <video controls style="width:560px;max-width:92vw;border-radius:4px;border:1px solid var(--border);box-shadow:0 0 40px rgba(79,156,249,0.2);">
-      <source src="When_the_Earth_had_a_Moon.mp4" type="video/mp4">
-      Your browser does not support the video element.
-    </video>
-    <span style="font-family:'Lora',serif;font-style:italic;font-size:0.78rem;color:var(--silver);opacity:0.7;">When the Earth had a Moon</span>
   </div>
 </section>
 
@@ -295,12 +279,27 @@
 
 <div class="divider"></div>
 
+<!-- VIDEO SECTION — includes music video as first card -->
 <section id="video">
   <div class="section-inner">
     <p class="section-label fade-in">Watch</p>
     <h2 class="section-title fade-in">Video Content</h2>
     <p class="fade-in" style="font-family:'Lora',serif;font-size:1rem;max-width:560px;">Author readings, behind-the-scenes writing vlogs, Q&amp;As, and book trailers.</p>
     <div class="video-grid">
+
+      <!-- MUSIC VIDEO — hosted on GitHub -->
+      <div class="video-card fade-in">
+        <video controls style="width:100%;aspect-ratio:16/9;display:block;">
+          <source src="When_the_Earth_had_a_Moon.mp4" type="video/mp4">
+          Your browser does not support the video element.
+        </video>
+        <div class="video-info">
+          <h3>When the Earth Had a Moon — Music Video</h3>
+          <p>The official music video for the When the Earth Had a Moon series.</p>
+        </div>
+      </div>
+
+      <!-- YOUTUBE PART 2 -->
       <div class="video-card fade-in">
         <iframe width="100%" style="aspect-ratio:16/9;display:block;" src="https://www.youtube.com/embed/L4qq79KVbss" frameborder="0" allowfullscreen></iframe>
         <div class="video-info">
@@ -308,6 +307,8 @@
           <p>Official commercial for the thrilling conclusion to the When the Earth Had a Moon saga.</p>
         </div>
       </div>
+
+      <!-- YOUTUBE PART 1 -->
       <div class="video-card fade-in">
         <iframe width="100%" style="aspect-ratio:16/9;display:block;" src="https://www.youtube.com/embed/B-9lRDjJi0o" frameborder="0" allowfullscreen></iframe>
         <div class="video-info">
@@ -315,16 +316,7 @@
           <p>Official commercial for the space thriller that started it all.</p>
         </div>
       </div>
-      <div class="video-card fade-in">
-        <div class="video-placeholder">
-          <div class="play-btn">▶</div>
-          <p>Paste YouTube embed here</p>
-        </div>
-        <div class="video-info">
-          <h3>Book Trailer — [Title]</h3>
-          <p>Official trailer for the latest release.</p>
-        </div>
-      </div>
+
     </div>
   </div>
 </section>
