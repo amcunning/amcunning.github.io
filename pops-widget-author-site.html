@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POPS — AI from When the Earth Had a Moon</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00ff88;
+    --green-dim: #00cc66;
+    --green-dark: #003322;
+    --green-faint: #001a0f;
+    --amber: #ffaa00;
+    --bg: #020d06;
+    --text: #00ff88;
+    --border: #00ff8844;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 700px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+
+  .pops-avatar {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 8px var(--green));
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { filter: drop-shadow(0 0 8px var(--green)); }
+    50% { filter: drop-shadow(0 0 16px var(--green)) drop-shadow(0 0 4px var(--green)); }
+  }
+
+  .header-text h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    text-shadow: 0 0 10px var(--green);
+  }
+
+  .header-text p {
+    font-size: 0.7rem;
+    color: var(--green-dim);
+    letter-spacing: 0.15em;
+    margin-top: 2px;
+  }
+
+  .status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.65rem;
+    color: var(--green-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: blink 2s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--green-dark) transparent;
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 2px; }
+
+  .message {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .message.pops .message-label { color: var(--amber); }
+  .message.user .message-label { color: var(--green-dim); text-align: right; }
+
+  .message-bubble {
+    padding: 10px 14px;
+    border-radius: 2px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    max-width: 88%;
+  }
+
+  .message.pops .message-bubble {
+    background: var(--green-faint);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    color: var(--green);
+    align-self: flex-start;
+  }
+
+  .message.user .message-bubble {
+    background: #001a0f;
+    border: 1px solid #00ff8822;
+    border-right: 3px solid var(--green-dim);
+    color: var(--green-dim);
+    align-self: flex-end;
+    text-align: right;
+  }
+
+  .typing {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--green-faint);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    width: fit-content;
+    border-radius: 2px;
+  }
+
+  .typing span {
+    width: 5px;
+    height: 5px;
+    background: var(--amber);
+    border-radius: 50%;
+    animation: dot 1.2s ease-in-out infinite;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes dot {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .input-row input {
+    flex: 1;
+    background: var(--green-faint);
+    border: 1px solid var(--border);
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.88rem;
+    padding: 10px 14px;
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-row input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 8px var(--green-dark);
+  }
+
+  .input-row input::placeholder { color: #00ff8833; }
+
+  .input-row button {
+    background: transparent;
+    border: 1px solid var(--green-dim);
+    color: var(--green);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    padding: 10px 18px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .input-row button:hover {
+    background: var(--green-dark);
+    border-color: var(--green);
+    box-shadow: 0 0 10px var(--green-dark);
+  }
+
+  .input-row button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 0.6rem;
+    color: #00ff8822;
+    letter-spacing: 0.15em;
+  }
+
+  .footer a {
+    color: #00ff8844;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <svg class="pops-avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect x="15" y="20" width="70" height="65" rx="10" fill="#003322" stroke="#00ff88" stroke-width="2"/>
+      <rect x="25" y="35" width="20" height="14" rx="3" fill="#001a0f" stroke="#ffaa00" stroke-width="1.5"/>
+      <rect x="55" y="35" width="20" height="14" rx="3" fill="#001a0f" stroke="#ffaa00" stroke-width="1.5"/>
+      <circle cx="35" cy="42" r="4" fill="#00ff88" opacity="0.9"/>
+      <circle cx="65" cy="42" r="4" fill="#00ff88" opacity="0.9"/>
+      <line x1="45" y1="42" x2="55" y2="42" stroke="#ffaa00" stroke-width="1.5"/>
+      <path d="M35 62 Q50 58 65 62" stroke="#00ff88" stroke-width="1.5" fill="none"/>
+      <rect x="42" y="15" width="16" height="6" rx="2" fill="#003322" stroke="#00ff88" stroke-width="1.5"/>
+      <circle cx="50" cy="12" r="3" fill="#00ff88" opacity="0.6"/>
+      <rect x="8" y="38" width="8" height="16" rx="2" fill="#003322" stroke="#00ff88" stroke-width="1.5"/>
+      <rect x="84" y="38" width="8" height="16" rx="2" fill="#003322" stroke="#00ff88" stroke-width="1.5"/>
+    </svg>
+    <div class="header-text">
+      <h1>P.O.P.S</h1>
+      <p>ADVANCED AI UNIT — WHEN THE EARTH HAD A MOON</p>
+    </div>
+    <div class="status">
+      <div class="status-dot"></div>
+      ONLINE
+    </div>
+  </div>
+
+  <div class="messages" id="messages"></div>
+
+  <div class="input-row">
+    <input type="text" id="userInput" placeholder="Ask POPS something... if you must." />
+    <button id="sendBtn" onclick="sendMessage()">TRANSMIT</button>
+  </div>
+
+  <div class="footer">
+    POPS is a character from <a href="https://amcunning.github.io" target="_blank">WHEN THE EARTH HAD A MOON</a> by A.M. Cunning
+  </div>
+</div>
+
+<script>
+  // IMPORTANT: Replace this URL with your Render backend URL after deployment
+  const BACKEND_URL = 'https://pops-backend-7679.onrender.com/chat';
+
+  const conversationHistory = [];
+
+  function addMessage(role, text) {
+    const messages = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    const label = role === 'pops' ? 'P.O.P.S' : 'YOU';
+    div.innerHTML = `<div class="message-label">${label}</div><div class="message-bubble">${text}</div>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function showTyping() {
+    const messages = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.id = 'typing';
+    div.className = 'message pops';
+    div.innerHTML = `<div class="message-label">P.O.P.S</div><div class="typing"><span></span><span></span><span></span></div>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const btn = document.getElementById('sendBtn');
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage('user', text);
+    conversationHistory.push({ role: 'user', content: text });
+    input.value = '';
+    btn.disabled = true;
+    showTyping();
+
+    try {
+      const response = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversationHistory })
+      });
+
+      const data = await response.json();
+      removeTyping();
+
+      const reply = data.reply || "...I appear to be experiencing an interruption. How irritating.";
+      conversationHistory.push({ role: 'assistant', content: reply });
+      addMessage('pops', reply);
+    } catch (err) {
+      removeTyping();
+      addMessage('pops', "Connection lost. Typical human infrastructure.");
+    }
+
+    btn.disabled = false;
+    input.focus();
+  }
+
+  document.getElementById('userInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // POPS opens the conversation
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const greeting = "You're welcome.";
+      conversationHistory.push({ role: 'assistant', content: greeting });
+      addMessage('pops', greeting);
+    }, 600);
+  });
+</script>
+</body>
+</html>
